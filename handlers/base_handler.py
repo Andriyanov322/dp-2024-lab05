@@ -1,3 +1,4 @@
+from typing import Optional
 from interfaces.iorder_handler import IOrderHandler
 
 
@@ -5,8 +6,13 @@ class BaseOrderHandler(IOrderHandler):
     """Базовый класс для реализации цепочки обязанностей."""
 
     def __init__(self):
-        """Инициализация базового обработчика."""
-        self._next_handler: IOrderHandler = None
+        """
+        Инициализация базового обработчика.
+
+        Attributes:
+            _next_handler (Optional[IOrderHandler]): Ссылка на следующий обработчик в цепочке.
+        """
+        self._next_handler: Optional[IOrderHandler] = None
 
     def set_next(self, handler: IOrderHandler) -> IOrderHandler:
         """
