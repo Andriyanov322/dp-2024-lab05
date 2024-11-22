@@ -2,8 +2,8 @@ from handlers import OrderHandler, StockCheckHandler, PaymentProcessorHandler, D
 from commands import ProcessOrderCommand
 from exceptions import OutOfStockError, PaymentProcessingError, DeliveryError
 
-# Склад
-inventory = {
+# "База данных" (имитация)
+db = {
     'item1': 10,
     'item2': 0,  # Товар отсутствует
 }
@@ -17,7 +17,7 @@ order = {
 
 # Создание цепочки обработчиков
 order_handler = OrderHandler()
-stock_check_handler = StockCheckHandler(inventory)
+stock_check_handler = StockCheckHandler(db)  # Передаем "БД"
 payment_processor_handler = PaymentProcessorHandler()
 delivery_handler = DeliveryHandler()
 

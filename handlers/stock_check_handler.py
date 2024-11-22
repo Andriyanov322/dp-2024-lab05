@@ -5,13 +5,13 @@ from exceptions.out_of_stock_error import OutOfStockError
 class StockCheckHandler(BaseOrderHandler):
     """Обработчик для проверки наличия товара на складе."""
 
-    def __init__(self, inventory: dict):
+    def __init__(self, db: dict):
         """
         Args:
-            inventory (dict): Информация о наличии товаров на складе.
+            db (dict): "База данных", содержащая информацию о наличии товаров.
         """
         super().__init__()
-        self.inventory = inventory
+        self.db = db  # Ссылка на "БД"
 
     def handle(self, order: dict) -> None:
         """
@@ -28,9 +28,11 @@ class StockCheckHandler(BaseOrderHandler):
         if not item:
             raise OutOfStockError("Item not specified in the order.")
 
-        if item not in self.inventory or self.inventory[item] == 0:
-            # Передаем только название товара, а не текст сообщения
+        # Достаем информацию о наличии товара из "БД"
+        stock_count = self.db.get(item, 0)
+
+        if stock_count <= 0:
             raise OutOfStockError(item)
 
-        print(f"StockCheckHandler: Item '{item}' is available.")
+        print(f"StockCheckHandler: Item '{item}' is available (Stock: {stock_count}).")
         super().handle(order)
