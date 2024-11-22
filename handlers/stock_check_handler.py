@@ -31,7 +31,7 @@ class StockCheckHandler(BaseOrderHandler):
         # Достаем информацию о наличии товара из "БД"
         stock_count = self.db.get(item, 0)
 
-        if stock_count <= 0:
+        if stock_count == 0:
             raise OutOfStockError(item)
 
         print(f"StockCheckHandler: Item '{item}' is available (Stock: {stock_count}).")
