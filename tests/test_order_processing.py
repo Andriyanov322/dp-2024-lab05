@@ -8,7 +8,11 @@ class TestOrderProcessing(unittest.TestCase):
     """Тесты для цепочки обязанностей обработки заказов."""
 
     def setUp(self):
-        """Инициализация данных для тестов."""
+        """
+        Инициализация данных для тестов.
+
+        Создаёт обработчики, цепочку обязанностей и пример данных о заказе.
+        """
         self.inventory = {
             'item1': 10,
             'item2': 0  # Товар отсутствует
@@ -26,12 +30,16 @@ class TestOrderProcessing(unittest.TestCase):
         self.delivery_handler = DeliveryHandler()
 
         # Строим цепочку
-        self.order_handler.set_next(self.stock_check_handler)\
-            .set_next(self.payment_processor_handler)\
+        self.order_handler.set_next(self.stock_check_handler) \
+            .set_next(self.payment_processor_handler) \
             .set_next(self.delivery_handler)
 
     def test_successful_order(self):
-        """Тест успешной обработки заказа."""
+        """
+        Тест успешной обработки заказа.
+
+        Проверяет, что заказ с корректными данными проходит всю цепочку без ошибок.
+        """
         command = ProcessOrderCommand(self.order_handler, self.order)
         try:
             command.execute()
@@ -40,7 +48,12 @@ class TestOrderProcessing(unittest.TestCase):
             self.fail(f"Test failed: Unexpected exception {e}")
 
     def test_out_of_stock(self):
-        """Тест обработки заказа, если товара нет в наличии."""
+        """
+        Тест обработки заказа, если товара нет в наличии.
+
+        Устанавливает товар, отсутствующий на складе, и проверяет,
+        что возникает ошибка OutOfStockError.
+        """
         self.order['item'] = 'item2'  # Указываем товар, которого нет на складе
         command = ProcessOrderCommand(self.order_handler, self.order)
         with self.assertRaises(OutOfStockError) as context:
@@ -48,7 +61,12 @@ class TestOrderProcessing(unittest.TestCase):
         self.assertEqual(str(context.exception), "Error: Item 'item2' is out of stock.")
 
     def test_invalid_payment(self):
-        """Тест обработки заказа с некорректным платежом."""
+        """
+        Тест обработки заказа с некорректным платежом.
+
+        Устанавливает некорректную сумму платежа и проверяет,
+        что возникает ошибка PaymentProcessingError.
+        """
         self.order['payment'] = 0  # Некорректная сумма платежа
         command = ProcessOrderCommand(self.order_handler, self.order)
         with self.assertRaises(PaymentProcessingError) as context:
@@ -56,7 +74,11 @@ class TestOrderProcessing(unittest.TestCase):
         self.assertEqual(str(context.exception), "Error: Payment amount '0' is invalid.")
 
     def test_missing_address(self):
-        """Тест обработки заказа с отсутствующим адресом доставки."""
+        """
+        Тест обработки заказа с отсутствующим адресом доставки.
+
+        Удаляет адрес из данных заказа и проверяет, что возникает ошибка DeliveryError.
+        """
         self.order.pop('address')  # Удаляем адрес
         command = ProcessOrderCommand(self.order_handler, self.order)
         with self.assertRaises(DeliveryError) as context:
@@ -64,7 +86,11 @@ class TestOrderProcessing(unittest.TestCase):
         self.assertEqual(str(context.exception), "Error: Delivery address 'None' is missing or invalid.")
 
     def test_partial_chain(self):
-        """Тест цепочки, в которой обработчики не все подключены."""
+        """
+        Тест цепочки, в которой обработчики не все подключены.
+
+        Проверяет, что частично настроенная цепочка выполняется корректно.
+        """
         self.order_handler.set_next(self.stock_check_handler)  # Устанавливаем только проверку наличия
         command = ProcessOrderCommand(self.order_handler, self.order)
         try:
@@ -74,7 +100,12 @@ class TestOrderProcessing(unittest.TestCase):
             self.fail(f"Test failed: Unexpected exception {e}")
 
     def test_item_restocked(self):
-        """Тест успешной обработки заказа после пополнения товара."""
+        """
+        Тест успешной обработки заказа после пополнения товара.
+
+        Проверяет, что заказ, первоначально отклонённый из-за отсутствия товара,
+        проходит после пополнения запасов.
+        """
         self.order['item'] = 'item2'  # Изначально товар отсутствует
         command = ProcessOrderCommand(self.order_handler, self.order)
 
