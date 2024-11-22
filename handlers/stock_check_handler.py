@@ -24,7 +24,7 @@ class StockCheckHandler(BaseOrderHandler):
             OutOfStockError: Если товара нет в наличии.
         """
         item = order.get('item')
-        if not item or self.inventory.get(item, 0) <= 0:
+        if not item or item not in self.inventory or self.inventory[item] == 0:
             raise OutOfStockError(item)
         print(f"StockCheckHandler: Item '{item}' is available.")
         super().handle(order)
