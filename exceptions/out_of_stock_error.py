@@ -6,4 +6,7 @@ class OutOfStockError(Exception):
         Args:
             item (str): Название товара, отсутствующего на складе.
         """
-        super().__init__(f"Error: Item '{item}' is out of stock.")
+        if item:
+            super().__init__(f"Error: Item '{item}' is out of stock.")
+        else:
+            super().__init__("Error: Item not specified in the order.")

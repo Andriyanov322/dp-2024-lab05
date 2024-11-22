@@ -21,10 +21,16 @@ class StockCheckHandler(BaseOrderHandler):
             order (dict): Данные заказа, включая название товара.
 
         Raises:
-            OutOfStockError: Если товара нет в наличии.
+            OutOfStockError: Если товара нет в наличии или название товара некорректно.
         """
         item = order.get('item')
-        if not item or item not in self.inventory or self.inventory[item] == 0:
+
+        if not item:
+            raise OutOfStockError("Item not specified in the order.")
+
+        if item not in self.inventory or self.inventory[item] == 0:
+            # Передаем только название товара, а не текст сообщения
             raise OutOfStockError(item)
+
         print(f"StockCheckHandler: Item '{item}' is available.")
         super().handle(order)
